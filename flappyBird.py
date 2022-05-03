@@ -1,4 +1,5 @@
 
+from itertools import count
 import pygame, sys, random
 from pygame.locals import *
 
@@ -9,7 +10,7 @@ BIRDWIDTH = 60
 BIRDHEIGHT = 45
 G = 0.5
 SPEEDFLY = -8
-BIRDIMG = pygame.image.load('./BTL/img/bird.png')
+BIRDIMG = pygame.image.load('./BTL/img/bird2.png')
 
 COLUMNWIDTH = 60
 COLUMNHEIGHT = 500
@@ -20,9 +21,9 @@ COLUMNIMG = pygame.image.load('./BTL/img/column.png')
 
 BACKGROUND = pygame.image.load('./BTL/img/background.png')
 
-LASERWIDTH = 27
-LASERHEIGHT = 7
-LASERSPEED = 2.5
+LASERWIDTH = 45
+LASERHEIGHT = 13
+LASERSPEED = 10
 LASERIMG = pygame.image.load('./BTL/img/laser.png')
 pygame.init()
 FPS = 60
@@ -42,7 +43,7 @@ class Laser():
         DISPLAYSURF.blit(self.suface , (int(self.x) ,int(self.y)))
     def update(self):
         self.x += self.speed
-        print(self.x)
+
 class Bird():
     def __init__(self):
         self.width = BIRDWIDTH
@@ -80,7 +81,7 @@ class Columns():
             DISPLAYSURF.blit(self.surface, (self.ls[i][0], self.ls[i][1] - self.height))
             DISPLAYSURF.blit(self.surface, (self.ls[i][0], self.ls[i][1] + self.blank))
     
-    def update(self):
+    def update(self , laser):
         for i in range(3):
             self.ls[i][0] -= self.speed
         
@@ -89,6 +90,17 @@ class Columns():
             x = self.ls[1][0] + self.distance
             y = random.randrange(60, WINDOWHEIGHT - self.blank - 60, 10)
             self.ls.append([x, y])
+        
+        def rectCollision(rect1, rect2):
+            if rect1[0] <= rect2[0]+rect2[2] and rect2[0] <= rect1[0]+rect1[2] and rect1[1] <= rect2[1]+rect2[3] and rect2[1] <= rect1[1]+rect1[3]:
+                return True
+            return False
+        rectLaser = [laser.x, laser.y, laser.width, laser.height]
+        rectColumn1 = [self.ls[0][0], self.ls[0][1] - self.height, self.width, self.height]
+        rectColumn2 = [self.ls[0][0], self.ls[0][1] + self.blank, self.width, self.height]
+        if rectCollision(rectLaser, rectColumn1) == True or rectCollision(rectLaser, rectColumn2) == True:
+            self.ls[0][0] = -600
+            laser.x += 600
 
 def rectCollision(rect1, rect2):
     if rect1[0] <= rect2[0]+rect2[2] and rect2[0] <= rect1[0]+rect1[2] and rect1[1] <= rect2[1]+rect2[3] and rect2[1] <= rect1[1]+rect1[3]:
@@ -106,6 +118,7 @@ def isGameOver(bird, columns):
         return True
     return False
 
+
 class Score():
     def __init__(self):
         self.score = 0
@@ -115,7 +128,7 @@ class Score():
         font = pygame.font.SysFont('consolas', 40)
         scoreSuface = font.render(str(self.score), True, (0, 0, 0))
         textSize = scoreSuface.get_size()
-        DISPLAYSURF.blit(scoreSuface, (int((WINDOWWIDTH - textSize[0])/2), 100))
+        DISPLAYSURF.blit(scoreSuface, (int((WINDOWWIDTH - textSize[0])/2), 50))
     
     def update(self, bird, columns):
         collision = False
@@ -179,7 +192,7 @@ def gamePlay(bird, columns, score, laser):
                     CheckLaser = True
         DISPLAYSURF.blit(BACKGROUND, (0, 0))
         columns.draw()
-        columns.update()
+        columns.update(laser)
         bird.draw()
         bird.update(mouseClick)
         score.draw()

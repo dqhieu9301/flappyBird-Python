@@ -20,9 +20,9 @@ COLUMNIMG = pygame.image.load('./BTL/img/column.png')
 
 BACKGROUND = pygame.image.load('./BTL/img/background.png')
 
-LASERWIDTH = 27
-LASERHEIGHT = 7
-LASERSPEED = 2
+LASERWIDTH = 45
+LASERHEIGHT = 13
+LASERSPEED = 10
 LASERIMG = pygame.image.load('./BTL/img/laser.png')
 pygame.init()
 FPS = 60
