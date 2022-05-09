@@ -1,5 +1,3 @@
-
-from itertools import count
 import pygame, sys, random
 from pygame.locals import *
 
@@ -10,21 +8,21 @@ BIRDWIDTH = 60
 BIRDHEIGHT = 45
 G = 0.5
 SPEEDFLY = -8
-BIRDIMG = pygame.image.load('./BTL/img/bird2.png')
+BIRDIMG = pygame.image.load('./img/bird2.png')
 
 COLUMNWIDTH = 60
 COLUMNHEIGHT = 500
 BLANK = 160
 DISTANCE = 200
-COLUMNSPEED = 2
-COLUMNIMG = pygame.image.load('./BTL/img/column.png')
+COLUMNSPEED = 2.5
+COLUMNIMG = pygame.image.load('./img/column.png')
 
-BACKGROUND = pygame.image.load('./BTL/img/background.png')
+BACKGROUND = pygame.image.load('./img/background2.png')
 
-LASERWIDTH = 45
-LASERHEIGHT = 13
-LASERSPEED = 10
-LASERIMG = pygame.image.load('./BTL/img/laser.png')
+LASERWIDTH = 50
+LASERHEIGHT = 45
+LASERSPEED = 7
+LASERIMG = pygame.image.load('./img/laser.png')
 pygame.init()
 FPS = 60
 fpsClock = pygame.time.Clock()
@@ -39,11 +37,13 @@ class Laser():
         self.y = Bird.y
         self.speed = LASERSPEED
         self.suface = LASERIMG
+        self.check = False
     def draw(self):
         DISPLAYSURF.blit(self.suface , (int(self.x) ,int(self.y)))
     def update(self):
         self.x += self.speed
-
+    def ChangeTrue(self):
+        self.check = True
 class Bird():
     def __init__(self):
         self.width = BIRDWIDTH
@@ -91,16 +91,23 @@ class Columns():
             y = random.randrange(60, WINDOWHEIGHT - self.blank - 60, 10)
             self.ls.append([x, y])
         
-        def rectCollision(rect1, rect2):
+        def Collision(rect1, rect2):
             if rect1[0] <= rect2[0]+rect2[2] and rect2[0] <= rect1[0]+rect1[2] and rect1[1] <= rect2[1]+rect2[3] and rect2[1] <= rect1[1]+rect1[3]:
                 return True
             return False
-        rectLaser = [laser.x, laser.y, laser.width, laser.height]
-        rectColumn1 = [self.ls[0][0], self.ls[0][1] - self.height, self.width, self.height]
-        rectColumn2 = [self.ls[0][0], self.ls[0][1] + self.blank, self.width, self.height]
-        if rectCollision(rectLaser, rectColumn1) == True or rectCollision(rectLaser, rectColumn2) == True:
-            self.ls[0][0] = -600
-            laser.x += 600
+        if laser.check == True:
+            for i in range(3):
+                rectLaser = [laser.x, laser.y, laser.width, laser.height]
+                rectColumn1 = [self.ls[i][0], self.ls[i][1] - self.height, self.width, self.height]
+                rectColumn2 = [self.ls[i][0], self.ls[i][1] + self.blank, self.width, self.height]
+                if Collision(rectLaser, rectColumn1) == True or Collision(rectLaser, rectColumn2) == True:
+                    self.ls[i][0] = -10000000
+                    self.ls.pop(i)
+                    x = self.ls[1][0] + self.distance
+                    y = random.randrange(60, WINDOWHEIGHT - self.blank - 60, 10)
+                    self.ls.append([x, y])
+                    laser.x += 10000000
+                    break
 
 def rectCollision(rect1, rect2):
     if rect1[0] <= rect2[0]+rect2[2] and rect2[0] <= rect1[0]+rect1[2] and rect1[1] <= rect2[1]+rect2[3] and rect2[1] <= rect1[1]+rect1[3]:
@@ -177,7 +184,6 @@ def gamePlay(bird, columns, score, laser):
     bird.speed = SPEEDFLY
     columns.__init__()
     score.__init__()
-    laser.__init__(bird)
     CheckLaser = False
     while True:
         mouseClick = False
@@ -190,6 +196,8 @@ def gamePlay(bird, columns, score, laser):
             if event.type == KEYDOWN:
                 if(event.key == pygame.K_RIGHT):
                     CheckLaser = True
+                    laser.__init__(bird)
+                    laser.ChangeTrue()
         DISPLAYSURF.blit(BACKGROUND, (0, 0))
         columns.draw()
         columns.update(laser)
@@ -197,11 +205,10 @@ def gamePlay(bird, columns, score, laser):
         bird.update(mouseClick)
         score.draw()
         score.update(bird, columns)
-        if CheckLaser :
+        if CheckLaser == True :
             laser.draw()
             laser.update()
             if laser.x > WINDOWWIDTH: 
-                laser.__init__(bird)
                 CheckLaser = False
 
         if isGameOver(bird, columns) == True:
