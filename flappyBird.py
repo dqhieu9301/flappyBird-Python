@@ -19,24 +19,24 @@ COLUMNIMG = pygame.image.load('./img/column.png')
 
 BACKGROUND = pygame.image.load('./img/background2.png')
 
-LASERWIDTH = 50
-LASERHEIGHT = 45
-LASERSPEED = 7
-LASERIMG = pygame.image.load('./img/laser.png')
+ROKETWIDTH = 50
+ROKETHEIGHT = 45
+ROKETSPEED = 7
+ROKETIMG = pygame.image.load('./img/laser.png')
 pygame.init()
 FPS = 60
 fpsClock = pygame.time.Clock()
 
 DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
 pygame.display.set_caption('Flappy Bird')
-class Laser():
+class Roket():
     def __init__(self , Bird):
-        self.width = LASERWIDTH
-        self.height = LASERHEIGHT
+        self.width = ROKETWIDTH
+        self.height = ROKETHEIGHT
         self.x = Bird.x
         self.y = Bird.y
-        self.speed = LASERSPEED
-        self.suface = LASERIMG
+        self.speed = ROKETSPEED
+        self.suface = ROKETIMG
         self.check = False
     def draw(self):
         DISPLAYSURF.blit(self.suface , (int(self.x) ,int(self.y)))
@@ -155,7 +155,7 @@ class Score():
 def gameStart(bird):
     bird.__init__()
 
-    font = pygame.font.SysFont('consolas', 60)
+    font = pygame.font.SysFont('consolas', 30)
     headingSuface = font.render('FLAPPY BIRD', True, (255, 0, 0))
     headingSize = headingSuface.get_size()
     
@@ -253,10 +253,10 @@ def main():
     bird = Bird()
     columns = Columns()
     score = Score()
-    laser = Laser(bird)
+    roket = Roket(bird)
     while True:
         gameStart(bird)
-        gamePlay(bird, columns, score , laser)
+        gamePlay(bird, columns, score , roket)
         gameOver(bird, columns, score)
 
 if __name__ == '__main__':
